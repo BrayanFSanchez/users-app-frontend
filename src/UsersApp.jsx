@@ -1,39 +1,60 @@
-import { useReducer } from "react";
-import { UserForm } from "./components/UserForm";
+import { UserModalForm } from "./components/UserModalForm";
 import { UsersList } from "./components/UsersList";
-import { usersReducer } from "./reducers/usersReducer";
-
-const initialUsers = [
-  {
-    id: 1,
-    username: "pepe",
-    password: "12345",
-    email: "pepe@correo.com",
-  },
-];
+import { useUsers } from "./hooks/useUsers";
 
 export const UsersApp = () => {
-  const [users, dispatch] = useReducer(usersReducer, initialUsers);
+  const {
+    users,
+    userSelected,
+    initialUserForm,
+    visibleForm,
 
-  const handleAddUser = (user) => {
-    dispatch({
-      type: "addUser",
-      payload: user,
-    });
-  };
+    handleAddUser,
+    handleRemoveUser,
+    handlerUserSelectedForm,
+    handlerOpenForm,
+    handlerCloseForm,
+  } = useUsers();
 
   return (
-    <div className="container my-4">
-      <h2>Users App</h2>
-      <div className="row">
-        <div className="col">
-          <UserForm handleAddUser={handleAddUser} />
-        </div>
+    <>
+      {!visibleForm || (
+        <UserModalForm
+          userSelected={userSelected}
+          initialUserForm={initialUserForm}
+          handleAddUser={handleAddUser}
+          handlerCloseForm={handlerCloseForm}
+        />
+      )}
 
-        <div className="col">
-          <UsersList users={users} />
+      <div className="container my-4">
+        <h2>Users App</h2>
+
+        <div className="row">
+          <div className="col">
+            {visibleForm || (
+              <button
+                className="btn btn-primary my-2"
+                onClick={handlerOpenForm}
+              >
+                Nuevo usuario
+              </button>
+            )}
+
+            {users.length === 0 ? (
+              <div className="alert alert-warning">
+                No hay usuarios en el sistema!
+              </div>
+            ) : (
+              <UsersList
+                handlerUserSelectedForm={handlerUserSelectedForm}
+                handleRemoveUser={handleRemoveUser}
+                users={users}
+              />
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
